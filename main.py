@@ -1,7 +1,5 @@
 import sys
 from datetime import datetime
-
-import pygame
 from pygame import mixer
 
 from button import *
@@ -10,8 +8,17 @@ from ctypes import *
 
 import webbrowser
 
+# import cv2
+# import numpy as np
+# import pyautogui
+# import threading
+
+# fourcc = cv2.VideoWriter_fourcc(*"XVID")
+# out = cv2.VideoWriter("output.avi", fourcc, 20.0, (width, height))
+
 width = windll.user32.GetSystemMetrics(0)
 height = windll.user32.GetSystemMetrics(1)
+
 pygame.mixer.pre_init(frequency=44100, size=-16, channels=4, buffer=512, devicename=None)
 
 mixer.init()
@@ -20,9 +27,37 @@ screen = pygame.display.set_mode((width, height), pygame.SCALED, vsync=1)
 pygame.font.init()
 font = pygame.font.Font(pygame.font.get_default_font(), 38)
 
-menu_sound = pygame.mixer.Sound("assets/ResultTable.mp3")
-menu_sound.set_volume(0.4)
+menu_sound = pygame.mixer.Sound("assets/Menu.mp3")
+menu_sound.set_volume(0.3)
 menu_channel = menu_sound.play()
+
+
+def error(string):
+    bg = pygame.image.load("assets/background.png").convert()
+    screen.blit(bg, (0, 0))
+    pygame.display.flip()
+    back_btn = Button(image=pygame.image.load("assets/Options Rect.png"),
+                      pos=(width / 2, height / 2),
+                      text_input="Okay", font=get_font(30), base_color="#d7fcd4",
+                      hovering_color="GREEN")
+    while True:
+        menu_mouse_pos = pygame.mouse.get_pos()
+        pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if back_btn.checkForInput(menu_mouse_pos):
+                    screen.blit(bg, (0, 0))
+                    return
+        error_text = get_font(30).render(string, True, "RED")
+        error_rect = error_text.get_rect(center=(width / 2, height / 2 - 150))
+        screen.blit(error_text, error_rect)
+        back_btn.changeColor(menu_mouse_pos)
+        back_btn.update(screen)
+        pygame.display.update()
+
 
 class Key:
     def __init__(self, x, y, color1, color2=None, key=None, size=[89, 40]):
@@ -38,9 +73,9 @@ class Key:
 class HitGame:
     def __init__(self, path):
         self.hit_sound = pygame.mixer.Sound("assets/hit.wav")
-        self.hit_sound.set_volume(0.3)
+        self.hit_sound.set_volume(0.1)
         self.combobreak_sound = pygame.mixer.Sound("assets/combo_break.mp3")
-        self.combobreak_sound.set_volume(0.2)
+        self.combobreak_sound.set_volume(0.05)
         self.combo = 0
         self.hit = 0
         self.acc = 1
@@ -59,9 +94,9 @@ class HitGame:
 
     def load(self, map_data):
         rects = []
-        f = open(map_data + ".txt", 'r')
+        file = open(map_data + ".txt", 'r')
         while True:
-            data = f.readline()
+            data = file.readline()
             if data == "":
                 break
             else:
@@ -77,14 +112,15 @@ class HitGame:
         self.end = len(rects)
         return rects
 
-    def pause(self):
+    @staticmethod
+    def pause():
         pause = font.render("PAUSE", True, "white")
-        screen.blit(pause, (width/2 - 300, height/2))
+        screen.blit(pause, (width / 2 - 300, height / 2))
         unpause = font.render("Unpause: press esc (will start in 3 seconds)", True, "white")
-        screen.blit(unpause, (width/2 - 300, height/2 - 200))
-        esc_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 +400),
-                            text_input="Exit", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
-        clock = pygame.time.Clock()
+        screen.blit(unpause, (width / 2 - 300, height / 2 - 200))
+        esc_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 + 400),
+                         text_input="Exit", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
+        clock_time = pygame.time.Clock()
         while True:
             pygame.display.update()
             pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW)
@@ -97,7 +133,7 @@ class HitGame:
                         return 1
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        start_ticks=pygame.time.get_ticks() #starter tick
+                        start_ticks = pygame.time.get_ticks()  # starter tick
                         screen.fill((0, 0, 0))
                         while True:
                             seconds = (pygame.time.get_ticks() - start_ticks) / 1000
@@ -105,16 +141,30 @@ class HitGame:
                             screen.fill((0, 0, 0))
                             screen.blit(time, (width / 2 - 300, height / 2))
                             pygame.display.update()
-                            clock.tick(30)
+                            clock_time.tick(30)
                             if seconds > 3:
                                 return 0
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
+
+    # def start_game_r(self):
+    #    t1 = threading.Thread(target=self.start_game)
+    #    t2 = threading.Thread(target=self.record)
+    #    t1.start()
+    #    t2.start()
+
+    # def record(self):
+    #    while True:
+    #        img = pyautogui.screenshot()
+    #        frame = np.array(img)
+    #        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #        out.write(frame)
+    #    out.release()
 
     def start_game(self):
         map_sound = pygame.mixer.Sound(self.song + ".mp3")
-        map_sound.set_volume(0.5)
+        map_sound.set_volume(menu_channel.get_volume())
         t1 = datetime.now()
         map_sound.play()
         while True:
@@ -125,13 +175,14 @@ class HitGame:
                         t3 = datetime.now()
                         pygame.mixer.pause()
                         x = self.pause()
-                        if x == 1: return
+                        if x == 1:
+                            return
                         pygame.mixer.unpause()
                         t4 = datetime.now()
                         t1 += t4 - t3
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
 
             # handle key events
             k = pygame.key.get_pressed()
@@ -191,14 +242,23 @@ class HitGame:
     def result(self):
         result_sound = pygame.mixer.Sound("assets/ResultTable.mp3")
         result_sound.set_volume(0.4)
-        result_sound.play()
+        channel_res = result_sound.play()
+        quit_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 + 150),
+                          text_input="Okay", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
         while True:
             pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW)
             screen.fill((0, 0, 0))
+            menu_mouse_pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if quit_btn.checkForInput(menu_mouse_pos):
+                        channel_res.stop()
+                        return
+            quit_btn.update(screen)
+            quit_btn.changeColor(menu_mouse_pos)
             text = font.render("Number of notes:" + str(self.all), True, "white")
             screen.blit(text, (250, 100))
             if self.all != 0:
@@ -236,6 +296,7 @@ class PlayWindow:
         pygame.display.flip()
         back_to_main_menu = False
         while True:
+            menu_mouse_pos = pygame.mouse.get_pos()
             pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -251,44 +312,19 @@ class PlayWindow:
                             screen.blit(self.bg, (0, 0))
                             pygame.display.flip()
                         except OSError:
-                            screen.blit(self.bg, (0, 0))
-                            pygame.display.flip()
-                            exit_error = False
-                            while True:
-                                pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW)
-                                for event in pygame.event.get():
-                                    if event.type == pygame.QUIT:
-                                        pygame.quit()
-                                        sys.exit()
-                                    if event.type == pygame.MOUSEBUTTONDOWN:
-                                        if back_btn.checkForInput(menu_mouse_pos):
-                                            exit_error = True
-                                            break
-                                menu_mouse_pos = pygame.mouse.get_pos()
-                                error_text = get_font(30).render("This map doesn't exist", True, "RED")
-                                error_rect = error_text.get_rect(center=(width / 2, height / 2 - 150))
-                                screen.blit(error_text, error_rect)
-                                back_btn = Button(image=pygame.image.load("assets/Options Rect.png"),
-                                                  pos=(width / 2, height / 2),
-                                                  text_input="Back", font=get_font(30), base_color="#d7fcd4",
-                                                  hovering_color="GREEN")
-                                back_btn.changeColor(menu_mouse_pos)
-                                back_btn.update(screen)
-                                if exit_error:
-                                    screen.blit(self.bg, (0, 0))
-                                    break
-                                pygame.display.update()
+                            menu_channel.unpause()
+                            error('There is no such a map')
                         break
                     if self.change_map.checkForInput(menu_mouse_pos):
                         screen.blit(self.bg, (0, 0))
-                        exit_map = False
+                        exit_change = False
                         while True:
                             pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW)
                             menu_mouse_pos = pygame.mouse.get_pos()
                             choose = get_font(40).render("Choose", True, "RED")
                             screen.blit(choose, (width / 2 - 80, height / 2 - 500))
                             back_btn = Button(image=pygame.image.load("assets/Options Rect.png"),
-                                              pos=((width / 2, height / 2 + 300)),
+                                              pos=(width / 2, height / 2 + 300),
                                               text_input="Back", font=get_font(30), base_color="#d7fcd4",
                                               hovering_color="GREEN")
                             back_btn.changeColor(menu_mouse_pos)
@@ -306,20 +342,18 @@ class PlayWindow:
                                     if btn.checkForInput(menu_mouse_pos):
                                         self.sound = list_of_maps[songs]
                                         self.curr_sound = get_font(30).render(self.sound, True, "#b68f40")
-                                        exit_map = True
+                                        exit_change = True
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     pygame.quit()
                                     sys.exit()
                                 if event.type == pygame.MOUSEBUTTONDOWN:
                                     if back_btn.checkForInput(menu_mouse_pos):
-                                        exit_map = True
-                                        break
-                            if exit_map:
-                                break
+                                        exit_change = True
                             pygame.display.update()
-                        screen.blit(self.bg, (0, 0))
-                        break
+                            if exit_change:
+                                screen.blit(self.bg, (0, 0))
+                                break
                     if self.quit_btn.checkForInput(menu_mouse_pos):
                         back_to_main_menu = True
                         break
@@ -353,17 +387,27 @@ class MainWindow:
                              hovering_color="RED")
         self.quit_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 + 50),
                                text_input="Quit", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
+        self.sc = font.render("Sound control:", True, "Gray")
+        self.vu = font.render("Volume up - up arrow", True, "Gray")
+        self.vd = font.render("Volume down - down arrow", True, "Gray")
+        self.menu_text = get_font(30).render("MAIN MENU", True, "#b68f40")
         self.btns = [self.play_btn, self.export, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
 
     def open(self):
         screen.blit(self.bg, (0, 0))
         pygame.display.flip()
         while True:
+            menu_mouse_pos = pygame.mouse.get_pos()
             pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        menu_channel.set_volume(menu_channel.get_volume() + 0.1)
+                    if event.key == pygame.K_DOWN:
+                        menu_channel.set_volume(menu_channel.get_volume() - 0.1)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.play_btn.checkForInput(menu_mouse_pos):
                         play_window = PlayWindow()
@@ -376,12 +420,13 @@ class MainWindow:
                         webbrowser.open('https://discord.com/invite/C7TABmzKCu')
                     if self.quit_btn.checkForInput(menu_mouse_pos):
                         pygame.quit()
+                        sys.exit()
+            screen.blit(self.sc, (250, 100))
+            screen.blit(self.vu, (250, 150))
+            screen.blit(self.vd, (250, 200))
+            menu_rect = self.menu_text.get_rect(center=(width / 2, height / 2 - height / 3))
 
-            menu_mouse_pos = pygame.mouse.get_pos()
-            menu_text = get_font(30).render("MAIN MENU", True, "#b68f40")
-            menu_rect = menu_text.get_rect(center=(width / 2, height / 2 - height / 3))
-
-            screen.blit(menu_text, menu_rect)
+            screen.blit(self.menu_text, menu_rect)
 
             for button in self.btns:
                 button.changeColor(menu_mouse_pos)
@@ -406,11 +451,8 @@ if __name__ == "__main__":
     f.close()
     menu = MainWindow()
     menu.open()
-# - back button on resulttalbe
-# pause game
 # - record play
 # CHECK AUDIO IN - OSU CONF FILE AND + IT IN IF pygame draw rect
-# result table
 # more maps
 # y += 10 is 5 approachtime (almost)
-# etc
+# music after hover on sound
