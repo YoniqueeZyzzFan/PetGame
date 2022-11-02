@@ -24,6 +24,14 @@ out = cv2.VideoWriter("output.avi", fourcc, 20.0, (width, height))  # rp
 width = windll.user32.GetSystemMetrics(0)
 height = windll.user32.GetSystemMetrics(1)
 
+# number of maps, wbtnmap, wbttext
+place1920 = [30, 700, 600]
+place1366 = [15, 400, 400]
+place = []
+if width > 1366:
+    place = place1920
+elif width <= 1366:
+    place = place1366
 pygame.mixer.pre_init(frequency=44100, size=-16, channels=4, buffer=512, devicename=None)
 
 mixer.init()
@@ -35,6 +43,38 @@ font = pygame.font.Font(pygame.font.get_default_font(), 38)
 menu_sound = pygame.mixer.Sound("assets/Menu.mp3")
 menu_sound.set_volume(0.3)
 menu_channel = menu_sound.play()
+
+list_of_maps = []
+list_of_diff = []
+
+approach_rate_converter = {5: 15, 9.7: 15}
+
+
+def reload_map():
+    try:
+        files = os.listdir('maps/')
+    except OSError:
+        error('Something wrong w/ map\'s folder')
+    for i in files:
+        try:
+            map_data = os.listdir('maps/' + i)
+            if i in list_of_maps:
+                continue
+            for k in map_data:
+                if k.find('.osu') != -1:
+                    list_of_maps.append(i)
+                    continue
+                if k.find('diff.txt') != -1:
+                    d = open('maps/' + i + '/' + 'diff.txt')
+                    data = d.readline()
+                    list_of_diff.append(data)
+                    d.close()
+            if len(list_of_diff) < len(list_of_maps):
+                list_of_diff.append('Unknown')
+        except OSError:
+            continue
+    print(list_of_diff)
+    print(list_of_maps)
 
 
 def error(string):
@@ -76,7 +116,7 @@ class Key:
 
 
 class HitGame:
-    def __init__(self, path):
+    def __init__(self, path, index_map):
         self.hit_sound = pygame.mixer.Sound("assets/hit.wav")
         self.hit_sound.set_volume(0.1)
         self.combobreak_sound = pygame.mixer.Sound("assets/combo_break.mp3")
@@ -86,6 +126,7 @@ class HitGame:
         self.acc = 1
         self.all = 0
         self.end = 0
+        self.speed = int(index_map)
         self.song = path
         self.keys = [
             Key(float(width) / 2 - 150, float(height) - 150, (0, 0, 0), (220, 220, 220), pygame.K_a),  # 100
@@ -98,14 +139,31 @@ class HitGame:
         self.map_rect = self.load(path)
 
     def load(self, map_data):
+        try:
+            sp = float(list_of_diff[self.speed])
+            self.speed = approach_rate_converter[sp]
+        except Exception:
+            self.speed = 10
         rects = []
-        file = open(map_data + ".txt", 'r')
+        try:
+            file = open(map_data + ".txt", 'r')
+        except Exception:
+            raise Exception('no such a map')
         while True:
             data = file.readline()
             if data == "":
                 break
             else:
                 x, y, t = re.split(r',', data)
+                x = int(x)
+                if x == 1:
+                    x = float(width) / 2 - 150 + 15
+                elif x == 2:
+                    x = float(width) / 2 - 50 + 15
+                elif x == 3:
+                    x = float(width) / 2 + 50 + 15
+                elif x == 4:
+                    x = float(width) / 2 + 150 + 15
                 if len(rects) > 0:
                     if rects[len(rects) - 1].x == int(x):
                         if self.note_time[len(self.note_time) - 1] == float(t):
@@ -122,7 +180,7 @@ class HitGame:
         screen.blit(pause, (width / 2 - 300, height / 2))
         unpause = font.render("Unpause: press esc (will start in 3 seconds)", True, "white")
         screen.blit(unpause, (width / 2 - 300, height / 2 - 200))
-        esc_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 + 400),
+        esc_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 + 200),
                          text_input="Exit", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
         clock_time = pygame.time.Clock()
         while True:
@@ -169,21 +227,24 @@ class HitGame:
         out.release()  # rp
 
     def start_game(self):
-        map_sound = pygame.mixer.Sound(self.song + ".mp3")
+        try:
+            map_sound = pygame.mixer.Sound(self.song + ".mp3")
+        except Exception:
+            raise Exception('mp3 file could not be found')
         map_sound.set_volume(menu_channel.get_volume() - 0.1)
         t1 = datetime.now()
-        map_sound.play()
+        map_channel = map_sound.play()
         while True:
             screen.fill((0, 0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         t3 = datetime.now()
-                        pygame.mixer.pause()
+                        map_channel.pause()
                         x = self.pause()
                         if x == 1:
                             return
-                        pygame.mixer.unpause()
+                        map_channel.unpause()
                         t4 = datetime.now()
                         t1 += t4 - t3
                 if event.type == pygame.QUIT:
@@ -208,7 +269,7 @@ class HitGame:
                 t = t.total_seconds() * 1000
                 if t > self.note_time[rect] - 998:
                     pygame.draw.rect(screen, (200, 200, 200), self.map_rect[rect])
-                    self.map_rect[rect].y += 13
+                    self.map_rect[rect].y += self.speed
                 for key in self.keys:
                     if key.rect.colliderect(self.map_rect[rect]) and not key.handled:  # hit_square on hit_button
                         self.min += 1
@@ -233,14 +294,14 @@ class HitGame:
                     self.combobreak_sound.play()
                     self.combo = 0
             text = font.render("combo:" + str(self.combo), True, "white")
-            screen.blit(text, (550, 500))
+            screen.blit(text, (100, 150))
             if self.all != 0:
                 self.acc = self.hit * 100 / self.all
             else:
                 self.acc = 100
             self.acc = round(self.acc, 2)
             accuracy = font.render("acc:" + str(self.acc), True, "white")
-            screen.blit(accuracy, (550, 457))
+            screen.blit(accuracy, (100, 100))
             pygame.display.update()
         map_sound.stop()
         self.result()
@@ -298,6 +359,15 @@ class PlayWindow:
                                  text_input="NoRecord", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
         self.sound = "Not selected"
         self.curr_sound = get_font(30).render(self.sound, True, "#b68f40")
+        self.sound_count = 0
+        self.curr_page = 1
+        self.curr_ind = 0
+        self.page = int(len(list_of_maps) / place[0]) + 1
+        self.page_btn = Button(image=pygame.image.load("assets/Quit Rect.png"),
+                               pos=(width / 2, height / 2 + 200),
+                               text_input="Page:" + str(self.curr_page) + '/' + str(self.page), font=get_font(30),
+                               base_color="#d7fcd4",
+                               hovering_color="RED")
         self.btns = [self.start_btn, self.change_map, self.quit_btn, self.record_btn]
 
     def open(self):
@@ -320,7 +390,19 @@ class PlayWindow:
                     if self.start_btn.checkForInput(menu_mouse_pos):
                         try:
                             menu_channel.pause()
-                            g = HitGame("maps/" + self.sound + "/" + self.sound)
+                            temp = 0
+                            for i in range(0, len(list_of_maps)):
+                                if list_of_maps[i] == self.sound:
+                                    temp = i
+                                    break
+                            try:
+                                g = HitGame("maps/" + self.sound + "/" + self.sound, temp)
+                            except Exception:
+                                error('no such a map')
+                                menu_channel.unpause()
+                                screen.blit(self.bg, (0, 0))
+                                pygame.display.flip()
+                                break
                             if self.record_btn.text_input == "Record":
                                 g.start_game_r()
                             else:
@@ -346,15 +428,38 @@ class PlayWindow:
                                               hovering_color="GREEN")
                             back_btn.changeColor(menu_mouse_pos)
                             back_btn.update(screen)
-                            for songs in range(0, len(list_of_maps)):
-                                btn = Button(image=None, pos=(380, (int(songs) + 1) * 50 + 100 + 15),
-                                             text_input=list_of_maps[songs], font=get_font(30), base_color="#d7fcd4",
+                            self.page_btn.changeColor(menu_mouse_pos)
+                            self.page_btn.update(screen)
+                            column = 0
+                            for songs in range(self.curr_ind, self.curr_ind + int(place[0])):
+                                if songs >= len(list_of_maps):
+                                    break
+                                wt = 0
+                                ht = 0
+                                w = 0
+                                h = 0
+                                if column < int(place[0]) / 2:
+                                    w = place[1]  # 500
+                                    wt = place[1] - 250  # 200
+                                    ht = (int(songs) - self.curr_ind + 1) * 50 + 100  # (int(songs)+1)*50 +100
+                                    h = (
+                                                int(songs) - self.curr_ind + 1) * 50 + 100 + 15  # (int(songs) + 1) * 50 + 100 + 15
+                                else:
+                                    w = place[2] + width / 2  # 1420
+                                    wt = place[1] + place[2]  # 1120
+                                    ht = (int(songs) - int(
+                                        place[0]) / 2 - self.curr_ind + 1) * 50 + 100  # (int(songs)+1)*50 +100
+                                    h = (int(songs) - int(place[
+                                                              0]) / 2 - self.curr_ind + 1) * 50 + 100 + 15  # (int(songs) + 1) * 50 + 100 + 15
+                                btn = Button(image=None, pos=(w, h),
+                                             text_input=list_of_maps[songs][:8], font=get_font(30),
+                                             base_color="#d7fcd4",
                                              hovering_color="GREEN")
                                 diff_text = get_font(30).render("diff-" + list_of_diff[songs], True, "#b68f40")
-                                screen.blit(diff_text, (200, (int(songs) + 1) * 50 + 100))
-
+                                screen.blit(diff_text, (wt, ht))
                                 btn.changeColor(menu_mouse_pos)
                                 btn.update(screen)
+                                column += 1
                                 if event.type == pygame.MOUSEBUTTONDOWN:
                                     if btn.checkForInput(menu_mouse_pos):
                                         self.sound = list_of_maps[songs]
@@ -365,6 +470,18 @@ class PlayWindow:
                                     pygame.quit()
                                     sys.exit()
                                 if event.type == pygame.MOUSEBUTTONDOWN:
+                                    if self.page_btn.checkForInput(menu_mouse_pos):
+                                        if self.page == 1:
+                                            break
+                                        if self.page == self.curr_page:
+                                            self.curr_page = 1
+                                            self.curr_ind = 0
+                                        elif self.page > self.curr_page:
+                                            self.curr_page += 1
+                                            self.curr_ind = self.curr_ind + int(place[0])
+                                        self.page_btn.text_input = "Page:" + str(self.curr_page) + '/' + str(self.page)
+                                        screen.blit(self.bg, (0, 0))
+                                        pygame.display.flip()
                                     if back_btn.checkForInput(menu_mouse_pos):
                                         exit_change = True
                             pygame.display.update()
@@ -398,9 +515,9 @@ class PlayWindow:
 class MainWindow:
     def __init__(self):
         self.bg = pygame.image.load("assets/background.png").convert()
-        self.creditsgh_btn = Button(image=pygame.image.load("assets/gh.jpg"), pos=(width - 100, height / 2 + 500),
+        self.creditsgh_btn = Button(image=pygame.image.load("assets/gh.jpg"), pos=(width - 100, height - 50),
                                     text_input="", font=get_font(0), base_color="#d7fcd4", hovering_color="RED")
-        self.creditsds_btn = Button(image=pygame.image.load("assets/ds.jpg"), pos=(width - 200, height / 2 + 500),
+        self.creditsds_btn = Button(image=pygame.image.load("assets/ds.jpg"), pos=(width - 200, height - 50),
                                     text_input="", font=get_font(0), base_color="#d7fcd4", hovering_color="RED")
         self.play_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 150),
                                text_input="Play", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
@@ -435,6 +552,7 @@ class MainWindow:
                         play_window = PlayWindow()
                         play_window.open()
                     if self.export.checkForInput(menu_mouse_pos):
+                        file_name = ''
                         try:
                             top = tkinter.Tk()
                             top.withdraw()  # hide window
@@ -447,6 +565,7 @@ class MainWindow:
                                 convert(file_name)
                             except ValueError as exc:
                                 error(str(exc))
+                        reload_map()
                     if self.creditsgh_btn.checkForInput(menu_mouse_pos):
                         webbrowser.open('https://github.com/YoniqueeZyzzFan')
                     if self.creditsds_btn.checkForInput(menu_mouse_pos):
@@ -454,9 +573,9 @@ class MainWindow:
                     if self.quit_btn.checkForInput(menu_mouse_pos):
                         pygame.quit()
                         sys.exit()
-            screen.blit(self.sc, (250, 100))
-            screen.blit(self.vu, (250, 150))
-            screen.blit(self.vd, (250, 200))
+            screen.blit(self.sc, (50, 100))
+            screen.blit(self.vu, (50, 150))
+            screen.blit(self.vd, (50, 200))
             menu_rect = self.menu_text.get_rect(center=(width / 2, height / 2 - height / 3))
 
             screen.blit(self.menu_text, menu_rect)
@@ -468,23 +587,10 @@ class MainWindow:
             pygame.display.update()
 
 
-list_of_maps = []
-list_of_diff = []
-
 if __name__ == "__main__":
     pygame.init()
-    f = open("maps/maps.txt")
-    while True:
-        map_set = f.readline()
-        if map_set == "":
-            break
-        else:
-            list_of_diff.append(map_set[len(map_set) - 2:])
-            list_of_maps.append(map_set[:len(map_set) - 2])
-    f.close()
+    reload_map()
     menu = MainWindow()
     menu.open()
-# - record play
-# CHECK AUDIO IN - OSU CONF FILE AND + IT IN IF pygame draw rect
 # more maps
 # y += 10 is 5 approachtime (almost)

@@ -30,13 +30,26 @@ def get_configuration(data, path):
 
 
 def convert(path1):
-    temp = path1.split('\\')[-1]
-    path_m = temp[:len(temp)-4] + '.mp3'
+    temp = path1.split('/')[-1]
+    path_m = temp[:len(temp) - 4] + '.mp3'
+    path_m2 = 'audio.mp3'
+    path_m3 = 'audio.ogg'
     path = temp
-    files = os.listdir(path1[:len(path1) - len(path)])
+    try:
+        files = os.listdir(path1[:len(path1) - len(path)])
+    except OSError:
+        raise ValueError('Something wrong :c')
     check = False
     for i in files:
         if i == path_m:
+            check = True
+            break
+        if i == path_m2:
+            path_m = i
+            check = True
+            break
+        if i == path_m3:
+            path_m = i
             check = True
             break
     if not check:
@@ -47,15 +60,21 @@ def convert(path1):
             destination_path = 'maps/' + path[:len(path) - 4]
             shutil.copyfile(path1, destination_path + '/' + path)
             shutil.copyfile(path1[:len(path1) - len(path)] + path_m, destination_path + '/' + path_m)
+            os.rename(destination_path + '/' + path_m, destination_path + '/' + temp[:len(temp) - 4] + '.mp3')
         except OSError:
             raise ValueError('This folder is already exists')
         file = codecs.open(destination_path + '/' + path, "r", "utf_8_sig")
         data = ''
         while True:
             data = file.readline()
+            if data.find('ApproachRate:') != -1:
+                f = open('maps/' + path[:len(path) - 4] + '/diff.txt', 'w')
+                f.write(data[13:])
+                f.close()
             if data.find('Mode:') != -1:
                 d = data[:len(data) - 2]
-                if d[len(d) - 1] != 3:
+                t = d[len(d) - 1]
+                if int(t) != 3:
                     file.close()
                     shutil.rmtree("maps/" + path[:len(path) - 4])
                     raise ValueError("wrong gamemode map")
@@ -65,26 +84,29 @@ def convert(path1):
                 data = file.read()
                 break
         file.close()
-        data = get_configuration(data, 'maps/' + temp[:len(temp)-4])
+        data = get_configuration(data, 'maps/' + temp[:len(temp) - 4])
         # data is list - x,y,time , we should change osu xy to ours
         new_data = []
         for i in range(0, len(data)):
             x, y, time, type = re.split(r",", data[i])
             if int(x) == 64:
-                x = int(width / 2 - 150)
+                x = 1
             elif int(x) == 192:
-                x = int(width / 2 - 50)
+                x = 2
             elif int(x) == 320:
-                x = int(width / 2 + 50)
+                x = 3
             elif int(x) == 448:
-                x = int(width / 2 + 150)
+                x = 4
             else:
                 continue
-            if int(type) != 1:
+            if int(type) != 1 and int(type) !=5 and int(type) != 128:
                 continue
             y = 0
             new_conf = str(x) + ',' + str(y) + ',' + str(time)
             new_data.append(new_conf)
+        if len(new_data) < 1:
+            shutil.rmtree("maps/" + path[:len(path) - 4])
+            raise ValueError("wrong gamemode map, only 4 buttons map")
         map_data = destination_path + '/' + path[:len(path) - 4] + '.txt'
         data = new_data
         f = open(map_data, 'w')
@@ -94,6 +116,5 @@ def convert(path1):
     else:
         raise ValueError('no such a file')
 
-
-#if __name__ == "__main__":
-    #convert('G:\\osu!\\Songs\\43095 Jomekka - Eighto\\Jomekka - Eighto.osu')
+# if __name__ == "__main__":
+# convert('G:\Course3\CourseAisd\\guitar\\need.osu')
