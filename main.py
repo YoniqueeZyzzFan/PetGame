@@ -1,5 +1,7 @@
 import sys
 from datetime import datetime
+
+import pygame.threads
 from pygame import mixer
 
 from button import *
@@ -8,13 +10,16 @@ from ctypes import *
 
 import webbrowser
 
-# import cv2
-# import numpy as np
-# import pyautogui
-# import threading
+import tkinter
+import tkinter.filedialog
 
-# fourcc = cv2.VideoWriter_fourcc(*"XVID")
-# out = cv2.VideoWriter("output.avi", fourcc, 20.0, (width, height))
+import cv2  # rp
+import numpy as np  # rp
+import pyautogui  # rp
+import threading  # rp
+
+fourcc = cv2.VideoWriter_fourcc(*"XVID")  # rp
+out = cv2.VideoWriter("output.avi", fourcc, 20.0, (width, height))  # rp
 
 width = windll.user32.GetSystemMetrics(0)
 height = windll.user32.GetSystemMetrics(1)
@@ -112,8 +117,7 @@ class HitGame:
         self.end = len(rects)
         return rects
 
-    @staticmethod
-    def pause():
+    def pause(self):
         pause = font.render("PAUSE", True, "white")
         screen.blit(pause, (width / 2 - 300, height / 2))
         unpause = font.render("Unpause: press esc (will start in 3 seconds)", True, "white")
@@ -130,6 +134,7 @@ class HitGame:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if esc_btn.checkForInput(menu_mouse_pos):
+                        self.end = self.min
                         return 1
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
@@ -148,23 +153,24 @@ class HitGame:
                     pygame.quit()
                     sys.exit()
 
-    # def start_game_r(self):
-    #    t1 = threading.Thread(target=self.start_game)
-    #    t2 = threading.Thread(target=self.record)
-    #    t1.start()
-    #    t2.start()
+    def start_game_r(self):  # rp
+        screen.fill((0, 0, 0))
+        t1 = threading.Thread(target=self.start_game)  # rp
+        t2 = threading.Thread(target=self.record)  # rp
+        t2.start()
+        t1.run()
 
-    # def record(self):
-    #    while True:
-    #        img = pyautogui.screenshot()
-    #        frame = np.array(img)
-    #        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #        out.write(frame)
-    #    out.release()
+    def record(self):  # rp
+        while self.min != self.end:  # rp
+            img = pyautogui.screenshot()  # rp
+            frame = np.array(img)  # rp
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # rp
+            out.write(frame)  # rp
+        out.release()  # rp
 
     def start_game(self):
         map_sound = pygame.mixer.Sound(self.song + ".mp3")
-        map_sound.set_volume(menu_channel.get_volume())
+        map_sound.set_volume(menu_channel.get_volume() - 0.1)
         t1 = datetime.now()
         map_sound.play()
         while True:
@@ -287,9 +293,12 @@ class PlayWindow:
                                  hovering_color="RED")
         self.quit_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 + 150),
                                text_input="Back", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
+        self.record_btn = Button(image=pygame.image.load("assets/Quit Rect.png"),
+                                 pos=(width / 2 + 250, height / 2 + 150),
+                                 text_input="NoRecord", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
         self.sound = "Not selected"
         self.curr_sound = get_font(30).render(self.sound, True, "#b68f40")
-        self.btns = [self.start_btn, self.change_map, self.quit_btn]
+        self.btns = [self.start_btn, self.change_map, self.quit_btn, self.record_btn]
 
     def open(self):
         screen.blit(self.bg, (0, 0))
@@ -303,17 +312,25 @@ class PlayWindow:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.record_btn.checkForInput(menu_mouse_pos):
+                        if self.record_btn.text_input == "Record":
+                            self.record_btn.text_input = "NoRecord"
+                        else:
+                            self.record_btn.text_input = "Record"
                     if self.start_btn.checkForInput(menu_mouse_pos):
                         try:
                             menu_channel.pause()
                             g = HitGame("maps/" + self.sound + "/" + self.sound)
-                            g.start_game()
+                            if self.record_btn.text_input == "Record":
+                                g.start_game_r()
+                            else:
+                                g.start_game()
                             menu_channel.unpause()
                             screen.blit(self.bg, (0, 0))
                             pygame.display.flip()
-                        except OSError:
+                        except ValueError as exc:
                             menu_channel.unpause()
-                            error('There is no such a map')
+                            error(str(exc))
                         break
                     if self.change_map.checkForInput(menu_mouse_pos):
                         screen.blit(self.bg, (0, 0))
@@ -362,6 +379,11 @@ class PlayWindow:
                 break
             menu_mouse_pos = pygame.mouse.get_pos()
             menu_text = get_font(30).render("Let's start!", True, "#b68f40")
+
+            beta = get_font(20).render("Not recommended for a good playing experience.", True, "Red")
+            screen.blit(beta, (width / 2 + 200, height / 2 + 200))
+            beta2 = get_font(20).render("Still in beta .", True, "Red")
+            screen.blit(beta2, (width / 2 + 200, height / 2 + 250))
 
             screen.blit(menu_text, (width / 2 - 80, height / 2 - 300))
             screen.blit(self.curr_sound, (width / 2 - 80, height / 2 - 70))
@@ -413,7 +435,18 @@ class MainWindow:
                         play_window = PlayWindow()
                         play_window.open()
                     if self.export.checkForInput(menu_mouse_pos):
-                        break
+                        try:
+                            top = tkinter.Tk()
+                            top.withdraw()  # hide window
+                            file_name = tkinter.filedialog.askopenfilename(parent=top)
+                            top.destroy()
+                        except Exception as exc:
+                            error(str(exc))
+                        if file_name != '':
+                            try:
+                                convert(file_name)
+                            except ValueError as exc:
+                                error(str(exc))
                     if self.creditsgh_btn.checkForInput(menu_mouse_pos):
                         webbrowser.open('https://github.com/YoniqueeZyzzFan')
                     if self.creditsds_btn.checkForInput(menu_mouse_pos):
@@ -455,4 +488,3 @@ if __name__ == "__main__":
 # CHECK AUDIO IN - OSU CONF FILE AND + IT IN IF pygame draw rect
 # more maps
 # y += 10 is 5 approachtime (almost)
-# music after hover on sound
