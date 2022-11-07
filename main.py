@@ -283,11 +283,11 @@ class HitGame:
                         self.map_rect[rect].y:  # if the key is  lower than the key remove hit sound
                     self.min += 1
                     self.all += 1
-                    if self.map_rect[rect].x == float(width) / 2 - 150:
+                    if self.map_rect[rect].x == float(width) / 2 - 150 + 15:
                         pygame.draw.rect(screen, (178, 34, 34), self.keys[0].rect)
-                    elif self.map_rect[rect].x == float(width) / 2 - 50:
+                    elif self.map_rect[rect].x == float(width) / 2 - 50 + 15:
                         pygame.draw.rect(screen, (178, 34, 34), self.keys[1].rect)
-                    elif self.map_rect[rect].x == float(width) / 2 + 50:
+                    elif self.map_rect[rect].x == float(width) / 2 + 50 + 15:
                         pygame.draw.rect(screen, (178, 34, 34), self.keys[2].rect)
                     else:
                         pygame.draw.rect(screen, (178, 34, 34), self.keys[3].rect)
