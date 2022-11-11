@@ -47,8 +47,8 @@ The application will look roughly like this (if there have been no updates):
 If you click play, a new menu will open:
 ![](/assets/Example2.png)
 
-<!-- ROADMAP -->
-## Roadmap
+<!-- To do -->
+## To do
 
 - [ ] Add music to the game recording
 - [ ] Multi-language Support
