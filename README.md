@@ -8,11 +8,6 @@ A brief list of features:
 * Import maps from osu (another popular rhythm game)
 * Pause and resume the game
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
-
-
 <!-- GETTING STARTED -->
 ### Prerequisites
 
