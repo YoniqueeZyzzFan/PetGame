@@ -11,7 +11,6 @@ Of course, no one template will serve all projects since your needs may be diffe
 
 Use the `BLANK_README.md` to get started.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 ### Prerequisites
@@ -33,20 +32,16 @@ _How you can installing and setting up your app._
    ```sh
    pip install sys, datetime, pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi, threading, codecs, os, re, shutil, ctypes
    ```
-2.1 Install packages (anaconda)
+2,1 Install packages (anaconda)
    ```sh
    conda install sys, datetime, pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi, threading, codecs, os, re, shutil, ctypes
    ```
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 Start the main.py. You will be greeted by a graphical interface with different options. 
 The application will look roughly like this (if there have been no updates):
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -57,7 +52,6 @@ The application will look roughly like this (if there have been no updates):
 - [ ] Multi-language Support
 
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 <!-- CONTRIBUTING -->
@@ -71,15 +65,12 @@ If you have a suggestion that would make this better, please fork the repo and c
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -88,4 +79,3 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 If you want to contact me, there is a discord channel and mail in my profile.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
