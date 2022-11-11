@@ -52,6 +52,7 @@ If you click play, a new menu will open:
 
 - [ ] Add music to the game recording
 - [ ] Multi-language Support
+- [ ] Exe file
 
 
 <!-- CONTRIBUTING -->
