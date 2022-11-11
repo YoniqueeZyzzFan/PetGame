@@ -6,6 +6,7 @@ This is a rhythm game in which you have to click on the falling tiles.
 A brief list of features:
 * Record your gameplay
 * Import maps from osu (another popular rhythm game)
+* Pause and resume the game
 
 Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
 
@@ -42,16 +43,15 @@ _How you can installing and setting up your app._
 
 Start the main.py. You will be greeted by a graphical interface with different options. 
 The application will look roughly like this (if there have been no updates):
+![](/assets/Example1.png)
+If you click play, a new menu will open:
+![](/assets/Example2.png)
 
-
-
-<!-- ROADMAP -->
-## Roadmap
+<!-- To do -->
+## To do
 
 - [ ] Add music to the game recording
 - [ ] Multi-language Support
-
-
 
 
 <!-- CONTRIBUTING -->
