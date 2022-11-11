@@ -2,6 +2,15 @@ import pygame
 
 
 class Button:
+    """Basic class for creating buttons.
+       Keyword arguments:
+        image - background for button
+        pos - position on the screen in pixels x,y
+        text_input - button text
+        font - font
+        base_color - color of text
+        hovering color - The color of the text when the mouse is hovered
+        """
     def __init__(self, image, pos, text_input, font, base_color, hovering_color):
         self.image = image
         self.x_pos = pos[0]
@@ -16,17 +25,20 @@ class Button:
         self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
 
     def update(self, screen):
+        """Draws a button on the screen."""
         if self.image is not None:
             screen.blit(self.image, self.rect)
         screen.blit(self.text, self.text_rect)
 
     def checkForInput(self, position):
+        """Changes color when the mouse is over the button"""
         if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
                                                                                           self.rect.bottom):
             return True
         return False
 
     def changeColor(self, position):
+        """Changes color of text"""
         if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
                                                                                           self.rect.bottom):
             self.text = self.font.render(self.text_input, True, self.hovering_color)

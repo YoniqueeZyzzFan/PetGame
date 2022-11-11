@@ -10,6 +10,9 @@ height = windll.user32.GetSystemMetrics(1)
 
 
 def get_configuration(data, path):
+    """function that takes the data and the path.
+      It selects data that stores information about where and when the note will be dropped..
+    """
     list_of_notes = []
     f = open(path + 'temp_conf.txt', 'w')
     f.write(data)
@@ -30,6 +33,9 @@ def get_configuration(data, path):
 
 
 def convert(path1):
+    """Converts the map from the condenser to the desired format and saves it to the /maps folder.
+    path 1 -  path to the map.osu
+       """
     temp = path1.split('/')[-1]
     path_m = temp[:len(temp) - 4] + '.mp3'
     path_m2 = 'audio.mp3'
@@ -99,7 +105,7 @@ def convert(path1):
                 x = 4
             else:
                 continue
-            if int(type) != 1 and int(type) !=5 and int(type) != 128:
+            if int(type) != 1 and int(type) != 5 and int(type) != 128:
                 continue
             y = 0
             new_conf = str(x) + ',' + str(y) + ',' + str(time)

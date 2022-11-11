@@ -51,6 +51,7 @@ approach_rate_converter = {5: 15, 9.7: 15}
 
 
 def reload_map():
+    """Check maps in the folder"""
     try:
         files = os.listdir('maps/')
     except OSError:
@@ -78,6 +79,10 @@ def reload_map():
 
 
 def error(string):
+    """Calls up an error window in the program if something went wrong.
+       Keyword arguments:
+           string - error text
+    """
     bg = pygame.image.load("assets/background.png").convert()
     screen.blit(bg, (0, 0))
     pygame.display.flip()
@@ -105,6 +110,15 @@ def error(string):
 
 
 class Key:
+    """Basic class for keys.
+           Keyword arguments:
+            x,y, - position on the screen
+            size - height and width of the button
+            color1 - color of text
+            color2 - The color of the text when the mouse is hovered
+            key - key
+            """
+
     def __init__(self, x, y, color1, color2=None, key=None, size=[89, 40]):
         self.x = x
         self.y = y
@@ -116,6 +130,22 @@ class Key:
 
 
 class HitGame:
+    """Сlass for game.
+            Keyword arguments:
+            hit_sound - sound on the click
+            combobreak_sound - sound on the missclick
+            combo - the number of consecutive notes pressed at the moment
+            hit - hit rate
+            acc - accuracy
+            all - number of notes
+            end - is responsible for deleting pressed notes
+            speed - note speed
+            song - song
+            note_time - note display time
+            min - map beginning
+            map_rect - note data
+        """
+
     def __init__(self, path, index_map):
         self.hit_sound = pygame.mixer.Sound("assets/hit.wav")
         self.hit_sound.set_volume(0.18)
@@ -139,6 +169,10 @@ class HitGame:
         self.map_rect = self.load(path)
 
     def load(self, map_data):
+        """Loads a map and selects a note position depending on the screen resolution
+            Keyword arguments:
+                map_data - map path
+        """
         try:
             sp = float(list_of_diff[self.speed])
             self.speed = approach_rate_converter[sp]
@@ -176,6 +210,7 @@ class HitGame:
         return rects
 
     def pause(self):
+        """Pause the game."""
         pause = font.render("PAUSE", True, "white")
         screen.blit(pause, (width / 2 - 300, height / 2))
         unpause = font.render("Unpause: press esc (will start in 3 seconds)", True, "white")
@@ -212,6 +247,7 @@ class HitGame:
                     sys.exit()
 
     def start_game_r(self):  # rp
+        """Running the game along with screen recording."""
         screen.fill((0, 0, 0))
         t1 = threading.Thread(target=self.start_game)  # rp
         t2 = threading.Thread(target=self.record)  # rp
@@ -219,6 +255,7 @@ class HitGame:
         t1.run()
 
     def record(self):  # rp
+        """Running the game without screen recording."""
         while self.min != self.end:  # rp
             img = pyautogui.screenshot()  # rp
             frame = np.array(img)  # rp
@@ -227,6 +264,7 @@ class HitGame:
         out.release()  # rp
 
     def start_game(self):
+        """Start the game."""
         try:
             map_sound = pygame.mixer.Sound(self.song + ".mp3")
         except Exception:
@@ -307,6 +345,7 @@ class HitGame:
         self.result()
 
     def result(self):
+        """Show statistics after a map is played."""
         result_sound = pygame.mixer.Sound("assets/ResultTable.mp3")
         result_sound.set_volume(0.4)
         channel_res = result_sound.play()
@@ -340,11 +379,25 @@ class HitGame:
             pygame.display.update()
 
 
-def get_font(size):  # Returns Press-Start-2P in the desired size
+def get_font(size):
+    """Returns Press-Start-2P in the desired size."""
     return pygame.font.Font("assets/JosefinSans-Bold.ttf", size)
 
 
 class PlayWindow:
+    """A class for displaying the map selection window and the start of the game.
+                Keyword arguments:
+               bg - background
+               smth_btn - When the button is pressed, the smth happens
+                change - shows the map selection window
+                quit - back to the main window
+                record - turn on/turn off the record
+                page - next page
+               sound - current map
+               curr_sonud - font for rectangle
+               curr_page - If there are too many maps, there will be several pages
+               curr_ind - is responsible for the number of cards on the page
+            """
     def __init__(self):
         self.bg = pygame.image.load("assets/background.png").convert()
         self.start_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 150),
@@ -371,6 +424,7 @@ class PlayWindow:
         self.btns = [self.start_btn, self.change_map, self.quit_btn, self.record_btn]
 
     def open(self):
+        """Open the window."""
         screen.blit(self.bg, (0, 0))
         pygame.display.flip()
         back_to_main_menu = False
@@ -513,6 +567,16 @@ class PlayWindow:
 
 
 class MainWindow:
+    """Сlass for main window.
+                Keyword arguments:
+                bg - background
+                smth_btn - When the button is pressed, the smth happens
+                 credits - links to the social media
+                 play - opens a window with choosing maps and start
+                 export - export map from osu
+                 quit - quit from the app
+                 sc/vu/vd - text on the main window
+            """
     def __init__(self):
         self.bg = pygame.image.load("assets/background.png").convert()
         self.creditsgh_btn = Button(image=pygame.image.load("assets/gh.jpg"), pos=(width - 100, height - 50),
@@ -533,6 +597,7 @@ class MainWindow:
         self.btns = [self.play_btn, self.export, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
 
     def open(self):
+        """Open the main window."""
         screen.blit(self.bg, (0, 0))
         pygame.display.flip()
         while True:
