@@ -118,9 +118,9 @@ class Key:
 class HitGame:
     def __init__(self, path, index_map):
         self.hit_sound = pygame.mixer.Sound("assets/hit.wav")
-        self.hit_sound.set_volume(0.1)
+        self.hit_sound.set_volume(0.18)
         self.combobreak_sound = pygame.mixer.Sound("assets/combo_break.mp3")
-        self.combobreak_sound.set_volume(0.05)
+        self.combobreak_sound.set_volume(0.12)
         self.combo = 0
         self.hit = 0
         self.acc = 1
@@ -592,5 +592,3 @@ if __name__ == "__main__":
     reload_map()
     menu = MainWindow()
     menu.open()
-# more maps
-# y += 10 is 5 approachtime (almost)
