@@ -35,6 +35,7 @@ _How you can installing and setting up your app._
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+### A S J K - control buttons
 
 Start the main.py. You will be greeted by a graphical interface with different options. 
 The application will look roughly like this (if there have been no updates):
