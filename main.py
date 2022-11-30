@@ -74,8 +74,6 @@ def reload_map():
                 list_of_diff.append('Unknown')
         except OSError:
             continue
-    print(list_of_diff)
-    print(list_of_maps)
 
 
 def error(string):
@@ -147,6 +145,8 @@ class HitGame:
         """
 
     def __init__(self, path, index_map):
+        #self.bg = pygame.image.load("assets/game_bg.jpg").convert()
+        #self.bg.set_alpha(40)
         self.hit_sound = pygame.mixer.Sound("assets/hit.wav")
         self.hit_sound.set_volume(0.18)
         self.combobreak_sound = pygame.mixer.Sound("assets/combo_break.mp3")
@@ -268,8 +268,8 @@ class HitGame:
         try:
             map_sound = pygame.mixer.Sound(self.song + ".mp3")
         except Exception:
-            raise Exception('mp3 file could not be found')
-        map_sound.set_volume(menu_channel.get_volume() - 0.1)
+            error('mp3 file could not be found')
+        map_sound.set_volume(0.25) #menu_channel.get_volume() - 0.1
         t1 = datetime.now()
         map_channel = map_sound.play()
         while True:
@@ -281,6 +281,7 @@ class HitGame:
                         map_channel.pause()
                         x = self.pause()
                         if x == 1:
+                            map_channel.stop()
                             return
                         map_channel.unpause()
                         t4 = datetime.now()
@@ -398,6 +399,7 @@ class PlayWindow:
                curr_page - If there are too many maps, there will be several pages
                curr_ind - is responsible for the number of cards on the page
             """
+
     def __init__(self):
         self.bg = pygame.image.load("assets/background.png").convert()
         self.start_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 150),
@@ -424,6 +426,7 @@ class PlayWindow:
         self.btns = [self.start_btn, self.change_map, self.quit_btn, self.record_btn]
 
     def open(self):
+        print(list_of_maps)
         """Open the window."""
         screen.blit(self.bg, (0, 0))
         pygame.display.flip()
@@ -506,7 +509,7 @@ class PlayWindow:
                                     h = (int(songs) - int(place[
                                                               0]) / 2 - self.curr_ind + 1) * 50 + 100 + 15  # (int(songs) + 1) * 50 + 100 + 15
                                 btn = Button(image=None, pos=(w, h),
-                                             text_input=list_of_maps[songs][:8], font=get_font(30),
+                                             text_input=(list_of_maps[songs][:6]), font=get_font(30),
                                              base_color="#d7fcd4",
                                              hovering_color="GREEN")
                                 diff_text = get_font(30).render("diff-" + list_of_diff[songs], True, "#b68f40")
@@ -573,10 +576,11 @@ class MainWindow:
                 smth_btn - When the button is pressed, the smth happens
                  credits - links to the social media
                  play - opens a window with choosing maps and start
-                 export - export map from osu
+                 imp - import map from osu
                  quit - quit from the app
                  sc/vu/vd - text on the main window
             """
+
     def __init__(self):
         self.bg = pygame.image.load("assets/background.png").convert()
         self.creditsgh_btn = Button(image=pygame.image.load("assets/gh.jpg"), pos=(width - 100, height - 50),
@@ -585,8 +589,8 @@ class MainWindow:
                                     text_input="", font=get_font(0), base_color="#d7fcd4", hovering_color="RED")
         self.play_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 150),
                                text_input="Play", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
-        self.export = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(width / 2, height / 2 - 50),
-                             text_input="Export", font=get_font(30), base_color="#d7fcd4",
+        self.imp = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(width / 2, height / 2 - 50),
+                             text_input="Import", font=get_font(30), base_color="#d7fcd4",
                              hovering_color="RED")
         self.quit_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(width / 2, height / 2 + 50),
                                text_input="Quit", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
@@ -594,7 +598,7 @@ class MainWindow:
         self.vu = font.render("Volume up - up arrow", True, "Gray")
         self.vd = font.render("Volume down - down arrow", True, "Gray")
         self.menu_text = get_font(30).render("MAIN MENU", True, "#b68f40")
-        self.btns = [self.play_btn, self.export, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
+        self.btns = [self.play_btn, self.imp, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
 
     def open(self):
         """Open the main window."""
@@ -616,7 +620,7 @@ class MainWindow:
                     if self.play_btn.checkForInput(menu_mouse_pos):
                         play_window = PlayWindow()
                         play_window.open()
-                    if self.export.checkForInput(menu_mouse_pos):
+                    if self.imp.checkForInput(menu_mouse_pos):
                         file_name = ''
                         try:
                             top = tkinter.Tk()
@@ -628,6 +632,7 @@ class MainWindow:
                         if file_name != '':
                             try:
                                 convert(file_name)
+                                error('Loading completed')
                             except ValueError as exc:
                                 error(str(exc))
                         reload_map()
@@ -654,6 +659,8 @@ class MainWindow:
 
 if __name__ == "__main__":
     pygame.init()
+    pygame.display.set_caption('Rhythm game')
+    pygame.display.set_icon(pygame.image.load('assets/icon.png'))
     reload_map()
     menu = MainWindow()
     menu.open()
