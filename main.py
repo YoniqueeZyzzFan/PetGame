@@ -1,6 +1,6 @@
 import sys
 from datetime import datetime
-
+from piano import *
 import pygame.threads
 from pygame import mixer
 
@@ -105,27 +105,6 @@ def error(string):
         back_btn.changeColor(menu_mouse_pos)
         back_btn.update(screen)
         pygame.display.update()
-
-
-class Key:
-    """Basic class for keys.
-           Keyword arguments:
-            x,y, - position on the screen
-            size - height and width of the button
-            color1 - color of text
-            color2 - The color of the text when the mouse is hovered
-            key - key
-            """
-
-    def __init__(self, x, y, color1, color2=None, key=None, size=[89, 40]):
-        self.x = x
-        self.y = y
-        self.color1 = color1
-        self.color2 = color2
-        self.key = key
-        self.rect = pygame.Rect(self.x, self.y, size[0], size[1])
-        self.handled = False
-
 
 class HitGame:
     """Сlass for game.
@@ -269,6 +248,7 @@ class HitGame:
             map_sound = pygame.mixer.Sound(self.song + ".mp3")
         except Exception:
             error('mp3 file could not be found')
+            return
         map_sound.set_volume(0.25) #menu_channel.get_volume() - 0.1
         t1 = datetime.now()
         map_channel = map_sound.play()
@@ -589,6 +569,8 @@ class MainWindow:
                                     text_input="", font=get_font(0), base_color="#d7fcd4", hovering_color="RED")
         self.play_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 150),
                                text_input="Play", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
+        self.piano_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 222),
+                               text_input="Piano", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
         self.imp = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(width / 2, height / 2 - 50),
                              text_input="Import", font=get_font(30), base_color="#d7fcd4",
                              hovering_color="RED")
@@ -598,7 +580,7 @@ class MainWindow:
         self.vu = font.render("Volume up - up arrow", True, "Gray")
         self.vd = font.render("Volume down - down arrow", True, "Gray")
         self.menu_text = get_font(30).render("MAIN MENU", True, "#b68f40")
-        self.btns = [self.play_btn, self.imp, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
+        self.btns = [self.play_btn, self.piano_btn, self.imp, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
 
     def open(self):
         """Open the main window."""
@@ -617,6 +599,16 @@ class MainWindow:
                     if event.key == pygame.K_DOWN:
                         menu_channel.set_volume(menu_channel.get_volume() - 0.1)
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.piano_btn.checkForInput(menu_mouse_pos):
+                        menu_channel.pause()
+                        try:
+                            piano = PianoGame(screen, width, height, font, True)
+                            piano.start()
+                        except Exception as oe:
+                            error(oe)
+                        menu_channel.unpause()
+                        screen.blit(self.bg, (0, 0))
+                        pygame.display.flip()
                     if self.play_btn.checkForInput(menu_mouse_pos):
                         play_window = PlayWindow()
                         play_window.open()

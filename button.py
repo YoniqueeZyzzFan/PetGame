@@ -1,5 +1,24 @@
 import pygame
 
+class Key:
+    """Basic class for keys.
+           Keyword arguments:
+            x,y, - position on the screen
+            size - height and width of the button
+            color1 - color of text
+            color2 - The color of the text when the mouse is hovered
+            key - key
+            """
+
+    def __init__(self, x, y, color1, color2=None, key=None, size=[89, 40]):
+        self.x = x
+        self.y = y
+        self.color1 = color1
+        self.color2 = color2
+        self.key = key
+        self.rect = pygame.Rect(self.x, self.y, size[0], size[1])
+        self.handled = False
+
 
 class Button:
     """Basic class for creating buttons.
