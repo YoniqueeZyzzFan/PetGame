@@ -36,6 +36,8 @@ def convert(path1):
     """Converts the map from the condenser to the desired format and saves it to the /maps folder.
     path 1 -  path to the map.osu
        """
+    if path1[len(path1)-4:] != '.osu':
+        raise ValueError('it\'s not a file with .osu format')
     temp = path1.split('/')[-1]
     path_m = temp[:len(temp) - 4] + '.mp3'
     path_m2 = 'audio.mp3'
