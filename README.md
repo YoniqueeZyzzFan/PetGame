@@ -13,7 +13,7 @@ A brief list of features:
 
  You need to use this packages.
   ```sh
-  sys, datetime, pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi, threading, codecs, os, re, shutil, ctypes
+  sys, datetime, pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi, threading, codecs, os, re, shutil, ctypes, playsound==1.2.2
   ```
 
 ### Installation
