@@ -39,9 +39,9 @@ _How you can installing and setting up your app._
 
 Start the main.py. You will be greeted by a graphical interface with different options. 
 The application will look roughly like this (if there have been no updates):
-![](/assets/Example1.png)
+![](/Example1.png)
 If you click play, a new menu will open:
-![](/assets/Example2.png)
+![](/Example2.png)
 
 <!-- To do -->
 ## To do
