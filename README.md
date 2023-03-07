@@ -8,6 +8,8 @@ A brief list of features:
 * Import maps from osu (another popular rhythm game)
 * Pause and resume the game
 
+<!-- Demo -->
+![](https://github.com/YoniqueeZyzzFan/Pet_RhythmGame/blob/master/assets/demo.gif)
 <!-- GETTING STARTED -->
 ### Prerequisites
 
