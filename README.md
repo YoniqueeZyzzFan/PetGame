@@ -9,6 +9,7 @@ A brief list of features:
 * Pause and resume the game
 
 <!-- Demo -->
+## The gif is rendered by githab, that's why it's so unstable, in the game itself it's fine
 ![](https://github.com/YoniqueeZyzzFan/Pet_RhythmGame/blob/master/assets/demo.gif)
 <!-- GETTING STARTED -->
 ### Prerequisites
