@@ -14,7 +14,7 @@ A brief list of features:
 <!-- GETTING STARTED -->
 ### Prerequisites
 
- You need to use this packages.
+ You need to use this packages. (opencv-python = cv2)
   ```sh
  pygame, webbrowser, tkinter, cv2, numpy, pyautogyi, playsound==1.2.2
   ```
