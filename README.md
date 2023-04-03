@@ -29,11 +29,11 @@ _How you can installing and setting up your app._
    ```
 2. Install packages (pip)
    ```sh
-   pip install sys, datetime, pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi, threading, codecs, os, re, shutil, ctypes
+   pip install pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi
    ```
 2,1 Install packages (anaconda)
    ```sh
-   conda install sys, datetime, pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi, threading, codecs, os, re, shutil, ctypes
+   conda install pygame, ctypes, webbrowser, tkinter, cv2, numpy, pyautogyi
    ```
 
 <!-- USAGE EXAMPLES -->
