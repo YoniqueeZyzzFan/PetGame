@@ -16,7 +16,7 @@ A brief list of features:
 
  You need to use this packages. (opencv-python = cv2)
   ```sh
- pygame, webbrowser, tkinter, cv2, numpy, pyautogyi, playsound==1.2.2
+ pygame, tkinter, cv2, numpy, pyautogyi, playsound==1.2.2
   ```
 
 ### Installation
@@ -29,11 +29,11 @@ _How you can installing and setting up your app._
    ```
 2. Install packages (pip)
    ```sh
-   pip install pygame, webbrowser, tkinter, cv2, numpy, pyautogyi
+   pip install pygame, tkinter, cv2, numpy, pyautogyi
    ```
 2,1 Install packages (anaconda)
    ```sh
-   conda install pygame,  webbrowser, tkinter, cv2, numpy, pyautogyi
+   conda install pygame, tkinter, cv2, numpy, pyautogyi
    ```
 
 <!-- USAGE EXAMPLES -->
