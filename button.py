@@ -19,7 +19,6 @@ class Key:
         self.rect = pygame.Rect(self.x, self.y, size[0], size[1])
         self.handled = False
 
-
 class Button:
     """Basic class for creating buttons.
        Keyword arguments:

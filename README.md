@@ -9,19 +9,19 @@ A brief list of features:
 * Pause and resume the game
 
 <!-- Demo -->
-## The gif is rendered by githab, that's why it's so unstable, in the game itself it's fine
+## The gif is rendered by gitHub, that's why it's so unstable, in the game itself it's fine
 ![](https://github.com/YoniqueeZyzzFan/Pet_RhythmGame/blob/master/assets/demo.gif)
 <!-- GETTING STARTED -->
 ### Prerequisites
 
  You need to use this packages. (opencv-python = cv2)
   ```sh
- pygame, tkinter, cv2, numpy, pyautogyi, playsound==1.2.2
+ pygame, tkinter, cv2, numpy, pyautogui
   ```
 
 ### Installation
 
-_How you can installing and setting up your app._
+_How you can install and set up your app._
 
 1. Clone the repo
    ```sh
@@ -29,16 +29,16 @@ _How you can installing and setting up your app._
    ```
 2. Install packages (pip)
    ```sh
-   pip install pygame, tkinter, cv2, numpy, pyautogyi
+   pip install pygame, tkinter, cv2, numpy, pyautogui
    ```
 2,1 Install packages (anaconda)
    ```sh
-   conda install pygame, tkinter, cv2, numpy, pyautogyi
+   conda install pygame, tkinter, cv2, numpy, pyautogui
    ```
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-### A S J K - control buttons
+### the A S J K - control buttons
 
 Start the main.py. You will be greeted by a graphical interface with different options. 
 The application will look roughly like this (if there have been no updates):

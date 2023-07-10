@@ -1,5 +1,5 @@
+import sys
 from datetime import datetime
-from piano import *
 import pygame.threads
 from pygame import mixer
 from tkinter import messagebox
@@ -38,15 +38,23 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height), pygame.SCALED, vsync=1)
 pygame.font.init()
 font = pygame.font.Font(pygame.font.get_default_font(), 38)
-
-menu_sound = pygame.mixer.Sound("assets/Menu.mp3")
-menu_sound.set_volume(0.3)
-menu_channel = menu_sound.play()
+try:
+    menu_sound = pygame.mixer.Sound("assets/Menu.mp3")
+    menu_sound.set_volume(0.3)
+    menu_channel = menu_sound.play()
+except Exception as e:
+    messagebox.showerror("ERROR", "Missing file: Menu.mp3")
+    exit(1)
 
 list_of_maps = []
 list_of_diff = []
 
 approach_rate_converter = {5: 15, 9.7: 15}
+
+
+def get_font(size):
+    """Returns Press-Start-2P in the desired size."""
+    return pygame.font.Font("assets/JosefinSans-Bold.ttf", size)
 
 
 def error(string):
@@ -475,7 +483,7 @@ class PlayWindow:
                                     wt = place[1] - 250  # 200
                                     ht = (int(songs) - self.curr_ind + 1) * 50 + 100  # (int(songs)+1)*50 +100
                                     h = (
-                                                    int(songs) - self.curr_ind + 1) * 50 + 100 + 15  # (int(songs) + 1) * 50 + 100 + 15
+                                                int(songs) - self.curr_ind + 1) * 50 + 100 + 15  # (int(songs) + 1) * 50 + 100 + 15
                                 else:
                                     w = place[2] + width / 2  # 1420
                                     wt = place[1] + place[2]  # 1120
@@ -564,8 +572,6 @@ class MainWindow:
                                     text_input="", font=get_font(0), base_color="#d7fcd4", hovering_color="RED")
         self.play_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 150),
                                text_input="Play", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
-        self.piano_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(width / 2, height / 2 - 222),
-                                text_input="Piano", font=get_font(30), base_color="#d7fcd4", hovering_color="RED")
         self.imp = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(width / 2, height / 2 - 50),
                           text_input="Import", font=get_font(30), base_color="#d7fcd4",
                           hovering_color="RED")
@@ -575,7 +581,7 @@ class MainWindow:
         self.vu = font.render("Volume up - up arrow", True, "Gray")
         self.vd = font.render("Volume down - down arrow", True, "Gray")
         self.menu_text = get_font(30).render("MAIN MENU", True, "#b68f40")
-        self.btns = [self.play_btn, self.piano_btn, self.imp, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
+        self.btns = [self.play_btn, self.imp, self.quit_btn, self.creditsgh_btn, self.creditsds_btn]
 
     def open(self):
         """Open the main window."""
@@ -594,16 +600,6 @@ class MainWindow:
                     if event.key == pygame.K_DOWN:
                         menu_channel.set_volume(menu_channel.get_volume() - 0.1)
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.piano_btn.checkForInput(menu_mouse_pos):
-                        menu_channel.pause()
-                        try:
-                            piano = PianoGame(screen, width, height, font)
-                            piano.start()
-                        except Exception as oe:
-                            error(oe)
-                        menu_channel.unpause()
-                        screen.blit(self.bg, (0, 0))
-                        pygame.display.flip()
                     if self.play_btn.checkForInput(menu_mouse_pos):
                         play_window = PlayWindow()
                         play_window.open()
@@ -646,84 +642,92 @@ class MainWindow:
 
 if __name__ == "__main__":
     p = os.getcwd()
-    files = os.listdir(p + '/piano_assets')
-    check = False
-    for i in files:
-        if i == 'piano_background.jpg':
-            check = True
-            break
-    if not check:
-        messagebox.showerror("ERROR", "Missing some assets files (pictures)")
-        exit(1)
     files = []
     files = os.listdir(p + '/assets')
     print(files)
-    check = [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+    check = [False, False, False, False, False, False, False, False, False, False, False, False, False, False,
+             False]
+    check_names = []
     k = 0
     for i in range(0, len(files)):
         if files[i] == '1.png':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'Background.png':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'Change_map.png':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'combo_break.mp3':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'ds.jpg':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'gh.jpg':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'hit.wav':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'icon.png':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'JosefinSans-Bold.ttf':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'JosefinSans-LightItalic.ttf':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'Menu.mp3':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'Options Rect.png':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'Play Rect.png':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'Quit Rect.png':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
         if files[i] == 'ResultTable.mp3':
             check[k] = True
+            check_names.append(k)
             k += 1
             continue
     for i in check:
         if not i:
-            messagebox.showerror("ERROR", "Missing some assets files (pictures or mp3)")
+            messagebox.showerror("ERROR", "Missing file:" + str(files[check_names[i]]))
             exit(1)
     pygame.init()
     pygame.display.set_caption('Rhythm game')
