@@ -620,7 +620,7 @@ class MainWindow:
                                 error(str(exc))
                         reload_map()
                     if self.creditsgh_btn.checkForInput(menu_mouse_pos):
-                        webbrowser.open('https://github.com/YoniqueeZyzzFan')
+                        webbrowser.open('https://github.com/Yoniqueeml')
                     if self.creditsds_btn.checkForInput(menu_mouse_pos):
                         webbrowser.open('https://discord.com/invite/C7TABmzKCu')
                     if self.quit_btn.checkForInput(menu_mouse_pos):
